@@ -73,44 +73,71 @@ public class VoitureDAO {
         }
     }
 
-    public List<Voiture> listeVoitures() {
-        List<Voiture> voitures = new ArrayList<>(); // Une seule liste pour toutes les voitures
-        String sql = "SELECT * FROM voitures";
+    public void rechercherEtAfficher(String marque, Integer prixOrigine, Integer kilometrage, Integer anneeFabrication) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM voitures WHERE 1=1"); // Base de la requête
 
-        try (Connection connection = Dbconnecteur.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-
-            while (resultSet.next()) {
-                String type = resultSet.getString("type");
-                Voiture voiture;
-
-                // Déterminer le type de voiture (typique ou sport)
-                if ("Typique".equalsIgnoreCase(type)) {
-                    voiture = new VoitureTypique(
-                            resultSet.getString("marque"),
-                            resultSet.getInt("annee_fabrication"),
-                            resultSet.getInt("kilometrage"),
-                            resultSet.getInt("prix_origine")
-                    );
-                } else {
-                    voiture = new VoitureSport(
-                            resultSet.getString("marque"),
-                            resultSet.getInt("annee_fabrication"),
-                            resultSet.getInt("kilometrage"),
-                            resultSet.getInt("prix_origine")
-                    );
-                }
-
-                // Ajouter la voiture à la liste
-                voitures.add(voiture);
-            }
-        } catch (SQLException e) {
-            System.err.println("Erreur lors de la récupération des voitures : " + e.getMessage());
+        // Ajouter dynamiquement les conditions en fonction des paramètres non nuls
+        if (marque != null && !marque.isEmpty()) {
+            sql.append(" AND marque = ?");
+        }
+        if (prixOrigine != null) {
+            sql.append(" AND prix_origine = ?");
+        }
+        if (kilometrage != null) {
+            sql.append(" AND kilometrage = ?");
+        }
+        if (anneeFabrication != null) {
+            sql.append(" AND annee_fabrication = ?");
         }
 
-        return voitures; // Retourne une seule liste contenant toutes les voitures
+        try (Connection connection = Dbconnecteur.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+
+            // Remplir les paramètres dynamiquement
+            int paramIndex = 1;
+            if (marque != null && !marque.isEmpty()) {
+                statement.setString(paramIndex++, marque);
+            }
+            if (prixOrigine != null) {
+                statement.setInt(paramIndex++, prixOrigine);
+            }
+            if (kilometrage != null) {
+                statement.setInt(paramIndex++, kilometrage);
+            }
+            if (anneeFabrication != null) {
+                statement.setInt(paramIndex++, anneeFabrication);
+            }
+
+            // Exécuter la requête
+            ResultSet resultSet = statement.executeQuery();
+
+            // Afficher les résultats
+            boolean found = false; // Pour vérifier s'il y a des résultats
+            while (resultSet.next()) {
+                found = true; // Au moins un résultat trouvé
+                String type = resultSet.getString("type");
+                String marqueResult = resultSet.getString("marque");
+                int annee = resultSet.getInt("annee_fabrication");
+                int km = resultSet.getInt("kilometrage");
+                int prix = resultSet.getInt("prix_origine");
+
+                System.out.println("Type: " + type);
+                System.out.println("Marque: " + marqueResult);
+                System.out.println("Année de Fabrication: " + annee);
+                System.out.println("Kilométrage: " + km + " km");
+                System.out.println("Prix d'origine: " + prix + " DH");
+                System.out.println("----------------------------");
+            }
+
+            if (!found) {
+                System.out.println("Aucune voiture ne correspond aux critères donnés.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la recherche des voitures : " + e.getMessage());
+        }
     }
+
 
 
     public void modifierVoiture(int id, String marque,int prix_origine, int anneeFabrication, int kilometrage) {

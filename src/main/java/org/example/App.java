@@ -1,5 +1,6 @@
 package org.example;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class App {
@@ -15,6 +16,7 @@ public class App {
             System.out.println("3. Modifier une voiture");
             System.out.println("4. Supprimer une voiture");
             System.out.println("5. Calculer la valeur catalogue d'une voiture");
+            System.out.println("6. Recherhce d'une voiture");
             System.out.println("0. Quitter");
             System.out.print("Choix : ");
             choix = scanner.nextInt();
@@ -99,6 +101,68 @@ public class App {
                     }
                     System.out.println("Valeur catalogue : " + voiture.getValeurCatalogue() + " DH");
                     break;
+                case 6: // Recherche une voiture
+                    System.out.println("=== Recherche de Voitures ===");
+                    System.out.println("Choisissez un critère de recherche :");
+                    System.out.println("1. Par Marque");
+                    System.out.println("2. Par Prix d'Origine");
+                    System.out.println("3. Par Kilométrage");
+                    System.out.println("4. Par Année de Fabrication");
+                    System.out.println("5s. Combinaison de plusieurs critères");
+                    System.out.println("Entrez votre choix :");
+
+                    int choixRecherche = scanner.nextInt();
+                    scanner.nextLine(); // Consommer la nouvelle ligne restante
+                    String marqueR = null;
+                    Integer prixOrigineR = null;
+                    Integer kilometrageR = null;
+                    Integer anneeFabricationR = null;
+
+                    switch (choixRecherche) {
+                        case 1: // Par Marque
+                            System.out.println("Entrez la marque :");
+                            marqueR = scanner.nextLine();
+                            break;
+                        case 2: // Par Prix d'Origine
+                            System.out.println("Entrez le prix d'origine :");
+                            prixOrigineR = scanner.nextInt();
+                            break;
+                        case 3: // Par Kilométrage
+                            System.out.println("Entrez le kilométrage :");
+                            kilometrageR = scanner.nextInt();
+                            break;
+                        case 4: // Par Année de Fabrication
+                            System.out.println("Entrez l'année de fabrication :");
+                            anneeFabricationR = scanner.nextInt();
+                            break;
+                        case 5: // Combinaison de plusieurs critères
+                            System.out.println("Entrez la marque (ou appuyez sur Entrée pour ignorer) :");
+                            marqueR = scanner.nextLine();
+                            if (marqueR.isEmpty()) marque = null;
+
+                            System.out.println("Entrez le prix d'origine (ou 0 pour ignorer) :");
+                            prixOrigineR = scanner.nextInt();
+                            if (prixOrigineR == 0) prixOrigineR = null;
+
+                            System.out.println("Entrez le kilométrage (ou 0 pour ignorer) :");
+                            kilometrage = scanner.nextInt();
+                            if (kilometrageR == 0) kilometrageR = null;
+
+                            System.out.println("Entrez l'année de fabrication (ou 0 pour ignorer) :");
+                            anneeFabrication = scanner.nextInt();
+                            if (anneeFabricationR == 0) anneeFabricationR = null;
+                            break;
+                        default:
+                            System.out.println("Choix invalide !");
+                            break;
+                    }
+
+                    // Recherche via le DAO
+                    voitureDAO.rechercherEtAfficher(marqueR, prixOrigineR, kilometrageR, anneeFabricationR);
+
+
+                    break;
+
 
                 case 0: // Quitter
                     System.out.println("Au revoir !");
